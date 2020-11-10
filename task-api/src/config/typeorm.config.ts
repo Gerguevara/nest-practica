@@ -7,7 +7,7 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
     username: 'postgres',
     password: 'mypass',
     database: 'taskmanagment',
-    entities:[__dirname + '/../*.entity{.ts,.js}'],
+    entities: [__dirname + '/../**/*.entity.{ts,js}'],  
     synchronize: true
 }
 /**synchronize run a mapping everytime the app start to run

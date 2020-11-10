@@ -1,6 +1,6 @@
 // this pipe verifys is the frond is sending a valid task status
 import { ArgumentMetadata, BadRequestException, PipeTransform } from "@nestjs/common";
-import { TaskStatus } from "../models/task.model";
+import { TaskStatus } from "../models/task.status.model";
 
 export class validationStatusPipe implements PipeTransform {
 
