@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { Task, TaskStatus } from './models/task.model';
 
 import { createTaskDto } from './dto/task.dto';
 import { filterTaskDto } from './dto/filterTask.dto';
+import { validationStatusPipe } from './pipes/taskStatusValidation.pipe';
 
 @Controller('task')
 export class TaskController {
@@ -11,11 +12,10 @@ export class TaskController {
    constructor(private _taslService: TaskService) { }
 
 
-   @Get()
-   getAlltasks(@Query() filter: filterTaskDto): Task[] {
-
+   @Get()//el validation pipe de aca esta basado en el dto para los parametros opcinales
+   getAlltasks(@Query(ValidationPipe) filter: filterTaskDto): Task[] {
       if (Object.keys(filter).length) {
-         console.log(filter);
+         console.log('Incluye un query', Object.keys(filter).length);
          return this._taslService.getTaskWithFilter(filter);
       }
       else {
@@ -23,14 +23,16 @@ export class TaskController {
       }
    }
 
-   @Get()
-   getOneTask(@Query('id') id: string): Task[] {
-      return this.getOneTask(id)
+   @Get('/:id')
+   getOneTask(@Param('id') id: string): Task[] {
+      console.log('id', id);
+      return this._taslService.getById(id)
    }
 
 
 
    @Post()
+   @UsePipes(ValidationPipe) //trabaja en conjunto con class-validator en el dto
    createANewTask(@Body() task: createTaskDto): Task {
       return this._taslService.createNewTask(task);
    }
@@ -49,7 +51,7 @@ export class TaskController {
 
 
    @Patch('/:id/:status')
-   updateTask(@Param('id') id: string, @Param('status') status: TaskStatus): boolean {
+   updateTask(@Param('id') id: string, @Param('status', validationStatusPipe) status: TaskStatus): boolean {
       this._taslService.updateTask(id, status);
       return true
    }
