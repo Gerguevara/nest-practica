@@ -1,58 +1,41 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { TaskService } from './task.service';
-import { Task, TaskStatus } from './models/task.model';
+import { TaskStatus } from './models/task.status.model';
 
 import { createTaskDto } from './dto/task.dto';
 import { filterTaskDto } from './dto/filterTask.dto';
+import { validationStatusPipe } from './pipes/taskStatusValidation.pipe';
+import { Task } from './entity/task.entity';
 
 @Controller('task')
 export class TaskController {
 
-    constructor(private _taslService: TaskService) {  }
+   constructor(private _taslService: TaskService) { }
+
+   @Get()
+   getTasks(@Query(ValidationPipe) filterTaskDto: filterTaskDto) : Promise<Task[]>{
+      return this._taslService.getTasks(filterTaskDto);
+   }
+
+   @Get('/:id')
+   getOneTask(@Param('id', ParseIntPipe) id: number): Promise<Task> {
+      return this._taslService.getById(id)
+   }
+
+   @Post()
+   @UsePipes(ValidationPipe)
+   createTask(@Body() createTaskDto: createTaskDto): Promise<Task> {
+      return this._taslService.createTask(createTaskDto);
+   }
+
+   @Delete('/:id')
+   deleteOneTask(@Param('id', ParseIntPipe) id: number) {
+      return this._taslService.deleteTask(id);
+   }
 
 
-    @Get()
-    getAlltasks(@Query() filter : filterTaskDto) :Task[]{
-
-         if(Object.keys(filter).length){
-            console.log(filter);            
-            return this._taslService.getTaskWithFilter( filter);
-         }
-         else{
-            return this._taslService.getAllTask()
-         }
-
-
-    }
-
-    @Get()
-    getOneTask(@Query('id') id : string) :Task[]{
-       return this.getOneTask(id)
-    }    
-   
-
-
-    @Post()
-    createANewTask(@Body() task : createTaskDto) :Task{
-       return this._taslService.createNewTask(task);
-    }
-
-    // @Post()
-    // createANewTaskAlt(@Body('tittle') tittle : string, 
-    //                @Body('description') description : string) :Task{
-    //    return this._taslService.createNewTask(description ,tittle);
-    // }
-
-    @Delete()
-    deleteOneTask(@Query('id') id : string) :boolean{              
-       this._taslService.deleteTask(id);
-       return true
-    }
-
-
-    @Patch('/:id/:status')
-    updateTask( @Param('id') id : string, @Param('status') status: TaskStatus) :boolean{
-        this._taslService.updateTask(id, status);
-        return true
-    }
+   @Patch('/:id/:status')
+   updateTask(@Param('id', ParseIntPipe) id: number, @Param('status', validationStatusPipe) status: TaskStatus): Promise<Task> {
+      return this._taslService.updateTask(id, status);
+   }
 }
