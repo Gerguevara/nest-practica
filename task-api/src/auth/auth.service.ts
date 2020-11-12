@@ -11,8 +11,10 @@ export class AuthService {
    
    async  signUp( authCredentialDto :  AuthCredentiasDto) : Promise<Boolean>{
         return await this.userRepository.signUp(authCredentialDto)
-    }
-    
+    }    
 
+    async sigIn(authCredentialDto :  AuthCredentiasDto):Promise<string>{
+        return await this.userRepository.validateUserPassword(authCredentialDto)
+    }
 
 }
