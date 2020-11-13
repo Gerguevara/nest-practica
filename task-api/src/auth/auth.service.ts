@@ -7,14 +7,15 @@ import { UserRepository } from './repository/user.repository';
 export class AuthService {
 
     constructor  (@InjectRepository(UserRepository)
-                 private userRepository : UserRepository){}   
+                 private userRepository : UserRepository                                
+                 ){}   
    
    async  signUp( authCredentialDto :  AuthCredentiasDto) : Promise<Boolean>{
         return await this.userRepository.signUp(authCredentialDto)
     }    
 
     async sigIn(authCredentialDto :  AuthCredentiasDto):Promise<string>{
-        return await this.userRepository.validateUserPassword(authCredentialDto)
+        return this.userRepository.validateUserPassword(authCredentialDto)
     }
 
 }
